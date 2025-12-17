@@ -271,6 +271,7 @@ to update-tren-en-transito
     set n-pasajeros-totales n-pasajeros-totales + n-pasajeros
     set n-pasajeros 0
     ask in-viaje-neighbors [
+      set color yellow
       set-estado "SALIENDO"
       move-to one-of patches with [ tipo = "ANDÉN" and estacion = [destino] of myself ]
       face one-of patches with [ tipo = "SALIDA" and estacion = [destino] of myself ]
@@ -398,11 +399,13 @@ to update-pasajero-esperando
   ]
 
   if tren-esperando != nobody and [n-pasajeros < max-pasajeros] of tren-esperando [
+    set color green
     set-estado "SUBIENDO"
     face tren-esperando
   ]
   
   if t-esperando >= t-paciencia [
+    set color gray
     set n-pasajeros-impacientes n-pasajeros-impacientes + 1
     set-estado "SALIENDO"
     face one-of patches with [ tipo = "SALIDA" and estacion = [destino] of myself ]
@@ -418,6 +421,7 @@ to update-pasajero-subiendo
       set-estado "VIAJANDO"
       hide-turtle
     ] [
+      set color orange
       set-estado "ESPERANDO"
     ]
   ] [
@@ -543,7 +547,7 @@ end
       <choice type="string" value="Sábado"></choice>
     </chooser>
     <slider x="80" step="100" y="235" max="600" width="150" display="frecuencia_subte" height="50" min="200" direction="Horizontal" default="200.0" variable="frecuencia_subte"></slider>
-    <slider x="240" step="1" y="170" max="30" width="190" display="paciencia-media" height="50" min="0" direction="Horizontal" default="18.0" variable="paciencia-media" units="mins"></slider>
+    <slider x="240" step="1" y="170" max="30" width="190" display="paciencia-media" height="50" min="0" direction="Horizontal" default="1.0" variable="paciencia-media" units="mins"></slider>
     <plot x="50" autoPlotX="false" yMax="80.0" autoPlotY="false" y="915" xMin="144000.0" height="230" legend="false" xMax="864000.0" yMin="0.0" display="Ocupación estación Retiro" width="905" sizeVersion="0">
       <setup></setup>
       <update></update>
