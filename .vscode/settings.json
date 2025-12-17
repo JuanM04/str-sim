@@ -3,5 +3,6 @@
   "[python]": {
     "editor.tabSize": 4
   },
-  "tinymist.rootPath": "${workspaceFolder}"
+  "tinymist.rootPath": "${workspaceFolder}",
+  "tinymist.onPaste": "$root/informe/imagenes"
 }

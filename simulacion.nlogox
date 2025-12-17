@@ -16,8 +16,8 @@ globals [
   N-TRENES                    ; Cantidad de formaciones en circulación
   ESTACIONES                  ; Lista de estaciones (strings)
   ESTACIONES-DISTANCIA        ; [m] Distancia entre estaciones
-  ESTACIONES-RECORRIDOS       ; Tabla de puntos del recorrido hacia esa estación en cada estación\
-  ESTACIONES-DEMANDAS         ; Tabla de matrices con la frecuencia de pasajeros en cada estación, , primero por día y luego por la cantidad de pasajeros cada 15 minutos
+  ESTACIONES-RECORRIDOS       ; Tabla de puntos del recorrido hacia esa estación en cada estación
+  ESTACIONES-DEMANDAS         ; Tabla de matrices con la frecuencia de pasajeros en cada estación, primero por día y luego por la cantidad de pasajeros cada 15 minutos
 
   ; Variables globales
   dia-actual                  ; Día actual de la semana, como índice de los arreglos DIAS-*
@@ -86,9 +86,7 @@ to setup
 
   set N-TRENES 2
   set TREN-V-MAX 5.6 ; [m/s] aproximadamente 20 km/h
-  ;set TREN-V-MAX 16.8 ; [m/s] aproximadamente 60 km/h
-  ;set TREN-ACC 0.8 ; [m/s²]
-  set TREN-ACC 2 ; [m/s²]
+  set TREN-ACC 0.8 ; [m/s²]
   set TREN-T-ESPERA 15 ; [s] de espera, 7.5 para descenso y 7.5 para ascenso
 
   set ESTACIONES ["RETIRO" "CONSTITUCIÓN"]
@@ -363,8 +361,8 @@ to pasajeros-dispatcher
             set size 3
             move-to one-of patches with [ tipo = "SALIDA" and estacion = [est] of myself ]
             set ycor 0
-            ;set t-paciencia random-normal 1100 150
-            set t-paciencia PATIENCE_SILDER * 60 ; Conversion PATIENCE_SLIDER a segundos
+            ; Conversion PACIENCIA-MEDIA a segundos
+            set t-paciencia random-normal (PACIENCIA-MEDIA * 60) 90
             set-estado "ESPERANDO"
             set t-esperando 0
             (ifelse
@@ -567,7 +565,7 @@ end
         <update>plot count pasajeros with [estado = "ESPERANDO" and destino = "CONSTITUCIÓN"]</update>
       </pen>
     </plot>
-    <slider x="240" step="1" y="170" max="30" width="190" display="PATIENCE_SILDER" height="50" min="0" direction="Horizontal" default="28.0" variable="PATIENCE_SILDER" units="mins"></slider>
+    <slider x="240" step="1" y="170" max="30" width="190" display="Paciencia media" height="50" min="0" direction="Horizontal" default="28.0" variable="PACIENCIA-MEDIA" units="mins"></slider>
   </widgets>
   <info>## WHAT IS IT?
 

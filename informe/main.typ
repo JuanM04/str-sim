@@ -1,8 +1,10 @@
 #import "@preview/barcala:0.3.0": apendice, informe, nomenclatura
+#import "@preview/codly:1.3.0": *
+#import "@preview/codly-languages:0.1.10": codly-languages
+#import "@preview/fletcher:0.5.8"
 #import "@preview/lilaq:0.5.0" as lq // Paquete para gráficos, puede ser omitido
 #import "@preview/physica:0.9.6": * // Paquete para matemática y física, puede ser omitido
 #import "@preview/zero:0.5.0" // Paquete para números lindos y unidades de medida, puede ser omitido
-#import "@preview/fletcher:0.5.8"
 
 #show: informe.with(
   unidad-academica: "informática",
@@ -58,6 +60,41 @@
     it
   }
 }
+
+// NetLogo
+#set raw(syntaxes: "netlogo.yaml", lang: "NetLogo")
+#let xfind(list, ..queries) = {
+  queries = queries.pos()
+  let v = list.find(e => {
+    let q = queries.at(0)
+    let q = if type(q) == str { (__tag: q) } else { (:..q) }
+    let tag = q.remove("__tag", default: none)
+    if tag != none and not ("tag" in e and e.tag == tag) {
+      return false
+    }
+    for (key, value) in q {
+      if not (key in e.attrs and e.attrs.at(key) == value) {
+        return false
+      }
+    }
+    return true
+  })
+  if queries.len() > 1 and v != none {
+    xfind(v.children, ..queries.slice(1))
+  } else {
+    v
+  }
+}
+#let source = xfind(xml("../simulacion.nlogox"), "model", "code").children.at(0)
+
+// Configuración de `codly`
+#show: codly-init.with()
+#codly(
+  languages: codly-languages,
+  display-name: false,
+  display-icon: false,
+)
+
 // Configuración de `zero`
 #import zero: num, zi
 #zero.set-num(
@@ -75,9 +112,6 @@
 // Unidades
 #let Vm = zi.declare("V/m")
 #let ms2 = zi.declare("m/s^2")
-
-// NetLogo
-#set raw(syntaxes: "netlogo.yaml")
 
 #outline()
 
@@ -303,9 +337,146 @@ Los mismo no aparecen de forma azarosa en las estaciones. Deben aparecer siguien
 
 == Implementación
 
-Este modelo se implementó en NetLogo, una herramienta diseñada para implementar ABM @NetLogo.
+Este modelo se implementó en NetLogo 7.0.2, una herramienta diseñada para implementar ABM @NetLogo, que permite definir agentes, sus propiedades y comportamientos de manera sencilla. La @fig-interfaz muestra la interfaz de la simulación.
 
-#highlight(fill: red)[imagen final]
+#figure(
+  image("imagenes/interfaz.png", width: 85%),
+  caption: [Interfaz de la simulación en NetLogo. A la izquierda, se observan los controles de la simulación. A la derecha, se observan los trenes y los pasajeros circulando por la Línea C del Subte de Buenos Aires.],
+) <fig-interfaz>
+
+
+La simulación se ejecuta en un entorno gráfico con coordenadas entre $(40, 20)$ y $(-40, -20)$, donde se representan las vías del Subte, trenes y pasajeros circulando por las mismas. La simulación cuenta con controles para iniciar, pausar y reiniciar la simulación, así como para ajustar parámetros como la cantidad de trenes en circulación y la velocidad de los mismos. Los dos botones más importantes son el de `setup` y el de `go`, que inicializan y ejecutan la simulación, respectivamente.
+
+En el @cod-globals se observan las variables globales definidas en NetLogo. Con las constantes se parametriza el modelo. Estas son:
+- `SEG-A-TICKS`: cantidad de segundos reales que representa un _tick_ de la simulación, fijado en 10~ticks cada segundo.
+- `DIAS-HORA-INICIO` y `DIAS-HORA-FIN`: horarios de inicio y fin de operación del Subte, diferenciando entre días de semana y fines de semana.
+- `TREN-V-MAX`: velocidad máxima de los trenes.
+- `TREN-ACC`: aceleración de los trenes.
+- `TREN-T-ESPERA`: tiempo que el tren permanece detenido en cada estación, fijado en un estimado de #zi.s[15]. Este tiempo se divide en dos partes iguales para el ascenso y descenso de pasajeros.
+- `N-TRENES`: cantidad de formaciones en circulación.
+- `ESTACIONES-DISTANCIA`: distancia entre estaciones, estimada en #zi.km[4.5] entre cada estación.
+- `ESTACIONES-DEMANDA`: la frecuencia de pasajeros en cada estación, primero por día y luego por la cantidad de pasajeros cada 15 minutos. Estos datos se obtuvieron a partir del análisis de los histogramas de molinetes (@fig-pasajeros-retiro y @fig-pasajeros-constitucion).
+
+#figure(
+  {
+    codly(header: [*simulacion.nlogox*], range: (3, 27))
+    raw(source, block: true)
+  },
+  caption: [Declaración de las variables globales en NetLogo. Se separan en constantes (parámetros del modelo) y variables (estado de la simulación).],
+  placement: top,
+) <cod-globals>
+
+El resto de valores son inferidos (como `ESCALA`, que convierte las distancias reales en distancias gráficas) o son variables de estado de la simulación (como `dia-actual`, que indica el día actual de la semana).
+
+Aparte de estas entradas, se miden distinas variables de salida para analizar el desempeño del sistema (obtenidas a partir de los _monitores_ de NetLogo, como se ve en la @fig-monitores). Se mide la cantidad la ocupación de cada estación y la cantidad de pasajeros cuya paciencia se agotó.
+
+#figure(
+  image("imagenes/monitores.png", width: 85%),
+  caption: [Monitores de la simulación en NetLogo.],
+) <fig-monitores>
+
+=== _Patches_
+
+En NetLogo, los _patches_ son las celdas que componen el entorno gráfico. En este modelo, la mayoría de celdas son inocuas, salvo agunas que son utilizadas por las personas para ubicarse en las estaciones. Así, se definieron parámetros para cada _patch_ en el @cod-patches-own que permiten identificar las paredes de las estaciones, los andenes y las salidas.
+
+#figure(
+  {
+    codly(header: [*simulacion.nlogox*], range: (67, 70))
+    raw(source, block: true)
+  },
+  caption: [Declacación de variables de los _patches_ de NetLogo.],
+) <cod-patches-own>
+
+
+=== Trenes (_Turle_)
+
+En NetLogo, los _turtles_ son los agentes móviles. En este modelo, se definieron dos tipos de _turtles_: los trenes y las personas. Por un lado, los trenes tienen sus parámetros previamente descritos, así como variables internas para manejar su estado (como `estado` y `tiempo-en-estado`), definidas en el @cod-trenes-own.
+
+#figure(
+  {
+    codly(header: [*simulacion.nlogox*], range: (38, 51))
+    raw(source, block: true)
+  },
+  caption: [Declacación de variables de los trenes de NetLogo.],
+) <cod-trenes-own>
+
+La `direccion` del tren indica hacia dónde se mueve (hacia Constitución o hacia Retiro). Con `n-pasajeros` se lleva una cuenta de cuántos pasajeros hay en ese moneto en el tren. `recorrido` es una lista de coordenadas que permiten el movimiento fluido del tren entre estaciones, junto a `v-actual`, `d-recorrida` y `d-total`.
+
+Luego, cuando comienza el día, el `trenes-dispatcher` se encarga de crear los trenes necesarios y ubicarlos en la estación inicial. Para ello, se utiliza el código del @cod-trenes-dispatcher. Luego, los mismos desaparecen al finalizar el día.
+
+#figure(
+  {
+    codly(
+      header: [*simulacion.nlogox*],
+      ranges: ((229, 236), (248, 251)),
+      skips: ((237, 0),),
+    )
+    raw(source, block: true)
+  },
+  caption: [Rutina que crea los trenes al inicio del día en NetLogo.],
+) <cod-trenes-dispatcher>
+
+Finalmente, la máquina de estados se implementa como múltiples funciones dentro de la rutina `go` que se ejecuta en bucle, como se muestra en el @cod-trenes-go.
+
+#figure(
+  {
+    codly(
+      header: [*simulacion.nlogox*],
+      ranges: ((174, 175), (179, 179), (182, 190), (201, 201)),
+      skips: ((176, 0), (180, 0), (191, 0)),
+    )
+    raw(source, block: true)
+  },
+  caption: [Avance de las máquinas de estados de los trenes en NetLogo.],
+) <cod-trenes-go>
+
+=== Pasajeros (_Turle_)
+
+Similarmente, los pasajeros tienen sus parámetros previamente descritos, así como variables internas para manejar su estado, definidas en el @cod-pasajeros-own.
+
+#figure(
+  {
+    codly(header: [*simulacion.nlogox*], range: (54, 62))
+    raw(source, block: true)
+  },
+  caption: [Declacación de variables de los pasajeros de NetLogo.],
+) <cod-pasajeros-own>
+
+El parámetro `t-paciencia` es aleatorio para cada pasajero, siguiendo una distribución normal con media definida por un _slider_ (por defecto #zi.minute[5]) y desviación estándar de #zi.minute[1.5]. La `direccion` indica hacia dónde se dirige el pasajero (hacia Constitución o hacia Retiro). `t-esperando` lleva la cuenta del tiempo que el pasajero lleva esperando en el andén.
+
+El comportamiento de estos es baste más simple que los trenes, porque se mueven sin rumbo por las estaciones hasta que llegue algún tren. Luego, intentan subirse. Si logran subirse, se crea un _link_ entre el pasajero y el tren para que el pasajero pueda "saber" cuándo llegó a su destino. Finalmente, descienden y se dirigen a la salida y se elimina el _link_.
+
+Los pasajeros aparecen en las estaciones según la demanda de pasajeros, implementada en el @cod-pasajeros-dispatcher. La misma lee los histogramas de molinetes y crea pasajeros acorde a la frecuencia de llegada de los mismos.
+
+#figure(
+  {
+    codly(
+      header: [*simulacion.nlogox*],
+      ranges: ((339, 356), (371, 377)),
+      skips: ((357, 0),),
+    )
+    raw(source, block: true)
+  },
+  caption: [Rutina que simula la demanda de pasajeros en NetLogo.],
+) <cod-pasajeros-dispatcher>
+
+Finalmente, la máquina de estados se implementa como múltiples funciones dentro de la rutina `go` que se ejecuta en bucle, como se muestra en el @cod-personas-go.
+
+#figure(
+  {
+    codly(
+      header: [*simulacion.nlogox*],
+      ranges: ((174, 175), (180, 180), (191, 201)),
+      skips: ((176, 0), (181, 0)),
+    )
+    raw(source, block: true)
+  },
+  caption: [Avance de las máquinas de estados de los pasajeros en NetLogo.],
+) <cod-personas-go>
+
+=== _Monitors_
+
+
 
 
 = Resultados
