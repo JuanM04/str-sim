@@ -1,0 +1,5 @@
+cant_vagones=1
+frecuencia-trenes=3
+paciencia-media=6
+Capacidad de pasajeros en el tren = 1 * 40 = 40
+LUNES

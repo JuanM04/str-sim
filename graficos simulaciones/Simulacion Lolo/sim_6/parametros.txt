@@ -1,0 +1,5 @@
+cant_vagones=7
+frecuencia-trenes=13
+paciencia-media=30
+Capacidad de pasajeros en el tren = 7 * 40 = mucho (280)
+SABADO
