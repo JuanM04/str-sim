@@ -271,6 +271,7 @@ to update-tren-en-transito
     set n-pasajeros-totales n-pasajeros-totales + n-pasajeros
     set n-pasajeros 0
     ask in-viaje-neighbors [
+      set color yellow
       set-estado "SALIENDO"
       move-to one-of patches with [ tipo = "ANDÉN" and estacion = [destino] of myself ]
       face one-of patches with [ tipo = "SALIDA" and estacion = [destino] of myself ]
@@ -398,11 +399,13 @@ to update-pasajero-esperando
   ]
 
   if tren-esperando != nobody and [n-pasajeros < max-pasajeros] of tren-esperando [
+    set color green
     set-estado "SUBIENDO"
     face tren-esperando
   ]
   
   if t-esperando >= t-paciencia [
+    set color gray
     set n-pasajeros-impacientes n-pasajeros-impacientes + 1
     set-estado "SALIENDO"
     face one-of patches with [ tipo = "SALIDA" and estacion = [destino] of myself ]
@@ -418,6 +421,7 @@ to update-pasajero-subiendo
       set-estado "VIAJANDO"
       hide-turtle
     ] [
+      set color orange
       set-estado "ESPERANDO"
     ]
   ] [
