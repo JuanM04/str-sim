@@ -25,8 +25,10 @@ globals [
   min-actual                  ; Entero entre 0 y 59
   seg-actual                  ; Entero entre 0 y 59
   n-dispatched                ; Tabla con la cantidad de pasajeros dispatched en cada estación en los últimos 15 min
-  n-pasajeros-impacientes
-  n-pasajeros-totales
+  
+  ; Contadores
+  n-pasajeros-impacientes     ; Cantidad de pasajeros totales que se fueron por impaciencia
+  n-pasajeros-totales         ; Cantidad de pasajeros totales que han viajado en trenes
 ]
 
 ; =============================================================================
@@ -530,6 +532,14 @@ end
 to-report mostrar-dia
   report item dia-actual DIAS-NOMBRES
 end
+
+to-report n-pasajeros-en-estacion [ est ]
+  report count pasajeros with [estado = "ESPERANDO" and estacion-esperando = est] 
+end
+
+to-report n-pasajeros-viajando [ dest ]
+  report count pasajeros with [estado = "VIAJANDO" and destino = dest] 
+end
 ]]></code>
   <widgets>
     <view x="504" wrappingAllowedX="false" y="12" frameRate="30.0" minPycor="-20" height="414" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="814" tickCounterLabel="ticks" maxPycor="20" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
@@ -553,7 +563,7 @@ end
       <update></update>
       <pen interval="1.0" mode="0" display="n-pasajeros-retiro" color="-2139308" legend="true">
         <setup></setup>
-        <update>plot count pasajeros with [estado = "ESPERANDO" and destino = "CONSTITUCIÓN"]</update>
+        <update>plot n-pasajeros-en-estacion "RETIRO"</update>
       </pen>
     </plot>
     <plot x="50" autoPlotX="false" yMax="10.0" autoPlotY="true" y="445" xMin="144000.0" height="230" legend="false" xMax="864000.0" yMin="0.0" width="905" display="Pasajeros totales transportados">
@@ -569,7 +579,7 @@ end
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-10649926" legend="true">
         <setup></setup>
-        <update>plot count pasajeros with [estado = "ESPERANDO" and destino = "RETIRO"]</update>
+        <update>plot n-pasajeros-en-estacion "CONSTITUCIÓN"</update>
       </pen>
     </plot>
     <plot x="960" autoPlotX="false" yMax="10.0" autoPlotY="true" y="445" xMin="144000.0" height="230" legend="false" xMax="864000.0" yMin="0.0" width="905" display="Pasajeros saliendo por impaciencia">
@@ -585,7 +595,7 @@ end
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-10649926" legend="true">
         <setup></setup>
-        <update>plot count pasajeros with [estado = "VIAJANDO" and destino = "CONSTITUCIÓN"]</update>
+        <update>plot n-pasajeros-viajando "CONSTITUCIÓN"</update>
       </pen>
     </plot>
     <plot x="960" autoPlotX="false" yMax="10.0" autoPlotY="true" y="680" xMin="144000.0" height="230" legend="false" xMax="864000.0" yMin="0.0" width="905" display="Pasajeros en tránsito hacia Retiro">
@@ -593,7 +603,7 @@ end
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-2139308" legend="true">
         <setup></setup>
-        <update>plot count pasajeros with [estado = "VIAJANDO" and destino = "RETIRO"]</update>
+        <update>plot n-pasajeros-viajando "RETIRO"</update>
       </pen>
     </plot>
     <monitor x="220" precision="17" y="95" height="60" fontSize="11" width="100" display="Hora">mostrar-tiempo</monitor>
