@@ -1,4 +1,4 @@
-#import "@preview/barcala:0.3.0": apendice, informe, nomenclatura
+#import "@preview/barcala:0.3.0": apendice, informe
 #import "@preview/codly:1.3.0": *
 #import "@preview/codly-languages:0.1.10": codly-languages
 #import "@preview/fletcher:0.5.8"
@@ -114,14 +114,6 @@
 #let ms2 = zi.declare("m/s^2")
 
 #outline()
-
-#nomenclatura(
-  ($q$, [Carga [#zi.coulomb()]]),
-  ($I$, [Corriente [#zi.ampere()]]),
-  ($U$, [Potencial eléctrico [#zi.volt()]]),
-  ($va(E)$, [Campo eléctrico [#Vm()]]),
-  ($va(B)$, [Campo magnético [#zi.tesla()]]),
-)
 
 #pagebreak()
 = Introducción
@@ -359,7 +351,11 @@ En el @cod-globals se observan las variables globales definidas en NetLogo. Con 
 
 #figure(
   {
-    codly(header: [*simulacion.nlogox*], range: (3, 27))
+    codly(
+      header: [*simulacion.nlogox*],
+      ranges: ((3, 25), (30, 30)),
+      skips: ((26, 0),),
+    )
     raw(source, block: true)
   },
   caption: [Declaración de las variables globales en NetLogo. Se separan en constantes (parámetros del modelo) y variables (estado de la simulación).],
@@ -381,20 +377,20 @@ En NetLogo, los _patches_ son las celdas que componen el entorno gráfico. En es
 
 #figure(
   {
-    codly(header: [*simulacion.nlogox*], range: (67, 70))
+    codly(header: [*simulacion.nlogox*], range: (70, 73))
     raw(source, block: true)
   },
   caption: [Declacación de variables de los _patches_ de NetLogo.],
 ) <cod-patches-own>
 
 
-=== Trenes (_Turle_)
+=== Trenes (_Turtle_)
 
 En NetLogo, los _turtles_ son los agentes móviles. En este modelo, se definieron dos tipos de _turtles_: los trenes y las personas. Por un lado, los trenes tienen sus parámetros previamente descritos, así como variables internas para manejar su estado (como `estado` y `tiempo-en-estado`), definidas en el @cod-trenes-own.
 
 #figure(
   {
-    codly(header: [*simulacion.nlogox*], range: (38, 51))
+    codly(header: [*simulacion.nlogox*], range: (41, 54))
     raw(source, block: true)
   },
   caption: [Declacación de variables de los trenes de NetLogo.],
@@ -408,8 +404,8 @@ Luego, cuando comienza el día, el `trenes-dispatcher` se encarga de crear los t
   {
     codly(
       header: [*simulacion.nlogox*],
-      ranges: ((229, 236), (248, 251)),
-      skips: ((237, 0),),
+      ranges: ((233, 240), (252, 255)),
+      skips: ((241, 0),),
     )
     raw(source, block: true)
   },
@@ -422,43 +418,31 @@ Finalmente, la máquina de estados se implementa como múltiples funciones dentr
   {
     codly(
       header: [*simulacion.nlogox*],
-      ranges: ((174, 175), (179, 179), (182, 190), (201, 201)),
-      skips: ((176, 0), (180, 0), (191, 0)),
+      ranges: ((178, 179), (183, 183), (186, 194), (205, 205)),
+      skips: ((180, 0), (184, 0), (195, 0)),
     )
     raw(source, block: true)
   },
   caption: [Avance de las máquinas de estados de los trenes en NetLogo.],
 ) <cod-trenes-go>
 
-=== Pasajeros (_Turle_)
+=== Pasajeros (_Turtle_)
 
 Similarmente, los pasajeros tienen sus parámetros previamente descritos, así como variables internas para manejar su estado, definidas en el @cod-pasajeros-own.
 
 #figure(
   {
-    codly(header: [*simulacion.nlogox*], range: (54, 62))
+    codly(header: [*simulacion.nlogox*], range: (57, 65))
     raw(source, block: true)
   },
   caption: [Declacación de variables de los pasajeros de NetLogo.],
 ) <cod-pasajeros-own>
 
-El parámetro `t-paciencia` es aleatorio para cada pasajero, siguiendo una distribución normal con media definida por un _slider_ (por defecto #zi.minute[5]) y desviación estándar de #zi.minute[1.5]. La `direccion` indica hacia dónde se dirige el pasajero (hacia Constitución o hacia Retiro). `t-esperando` lleva la cuenta del tiempo que el pasajero lleva esperando en el andén.
+El parámetro `t-paciencia` es aleatorio para cada pasajero, siguiendo una distribución normal con media definida por un _slider_ (por defecto #zi.minute[8]) y desviación estándar de #zi.minute[1.5]. La `direccion` indica hacia dónde se dirige el pasajero (hacia Constitución o hacia Retiro). `t-esperando` lleva la cuenta del tiempo que el pasajero lleva esperando en el andén.
 
 El comportamiento de estos es baste más simple que los trenes, porque se mueven sin rumbo por las estaciones hasta que llegue algún tren. Luego, intentan subirse. Si logran subirse, se crea un _link_ entre el pasajero y el tren para que el pasajero pueda "saber" cuándo llegó a su destino. Finalmente, descienden y se dirigen a la salida y se elimina el _link_.
 
 Los pasajeros aparecen en las estaciones según la demanda de pasajeros, implementada en el @cod-pasajeros-dispatcher. La misma lee los histogramas de molinetes y crea pasajeros acorde a la frecuencia de llegada de los mismos.
-
-#figure(
-  {
-    codly(
-      header: [*simulacion.nlogox*],
-      ranges: ((339, 356), (371, 377)),
-      skips: ((357, 0),),
-    )
-    raw(source, block: true)
-  },
-  caption: [Rutina que simula la demanda de pasajeros en NetLogo.],
-) <cod-pasajeros-dispatcher>
 
 Finalmente, la máquina de estados se implementa como múltiples funciones dentro de la rutina `go` que se ejecuta en bucle, como se muestra en el @cod-personas-go.
 
@@ -466,8 +450,20 @@ Finalmente, la máquina de estados se implementa como múltiples funciones dentr
   {
     codly(
       header: [*simulacion.nlogox*],
-      ranges: ((174, 175), (180, 180), (191, 201)),
-      skips: ((176, 0), (181, 0)),
+      ranges: ((345, 359), (374, 380)),
+      skips: ((360, 0),),
+    )
+    raw(source, block: true)
+  },
+  caption: [Rutina que simula la demanda de pasajeros en NetLogo.],
+) <cod-pasajeros-dispatcher>
+
+#figure(
+  {
+    codly(
+      header: [*simulacion.nlogox*],
+      ranges: ((178, 179), (184, 184), (195, 206)),
+      skips: ((180, 0), (185, 0)),
     )
     raw(source, block: true)
   },
@@ -476,20 +472,42 @@ Finalmente, la máquina de estados se implementa como múltiples funciones dentr
 
 === _Monitors_
 
+Para variar los párametros del modelo, se utilizan _sliders_ y _choosers_ en la interfaz gráfica de NetLogo, como se ve en la @fig-controles. Estos permiten modificar las constantes definidas en el @cod-globals.
 
+#figure(
+  image("imagenes/controles.png", width: 60%),
+  caption: [Controles y monitores de la simulación.],
+) <fig-controles>
 
+Con `n-vagones` se cambia la cantidad de vagones por formación --- cada vagón cuenta con una capacidad máxima de 40 pasajeros. Con `paciencia-media` se cambia la paciencia media de los pasajeros --- la desviación estándar se mantiene fija en #zi.minute[1.5]. Con `dia-incial` se puede elegir el día de la semana en que comienza la simulación. Finalmente, con `frecuencia-trenes` se puede elegir la frecuencia de los trenes en minutos, internamente se calcula la cantidad de trenes necesarios para mantener esa frecuencia, como se ve en el @cod-frecuencia-trenes.
+
+#figure(
+  {
+    codly(header: [*simulacion.nlogox*], range: (98, 99))
+    raw(source, block: true)
+  },
+  caption: [Cómputo de la cantidad de trenes necesarios según la frecuencia deseada en NetLogo. La duración del recorrido del tren se calcula considerando una aceleración y desaceleración uniforme.],
+) <cod-frecuencia-trenes>
+
+Luego, se cuenta con dos monitores que muestran la hora actual de la simulación y el día de la semana actual. Más abajo se encuentran _plots_ que grafican distintas variables de la simulación (@fig-monitores). Para cada estación, se grafica la ocupación de la misma en función del tiempo. Además, se grafica la cantidad de pasajeros viajando en algún tren según su destino. Finalmente, se grafican dos funciones acumuladoras: una que cuenta la cantidad de pasajeros que lograron llegar a su destino y otra que cuenta la cantidad de pasajeros que desistieron de esperar.
+
+== Replicación de experimentos
+
+El código fuente de la simulación se encuentra disponible en el repositorio de GitHub #link("https://github.com/JuanM04/str-sim"). Para ejecutar la simulación, basta con descargar el repositorio y abrir el archivo `simulacion.nlogo` con NetLogo 7.0.2 o superior. Nótese que es necesario descargar todo el repositorio, ya que la simulación depende de archivos externos (los histogramas de molinetes). En ese repositorio también se encuentran archivos externos a la simulación en sí, como
+- el código fuente de este informe en `informe/`,
+- los datasets procesados en `datasets/` junto a el script que los generó
+- y las simulaciones realizadas en `simulaciones/`.
 
 = Resultados
 
 = Conclusiones
 
 
-// Sección de apéndices. Si no se usa, se puede comentar o borrar
+#pagebreak()
+#bibliography("bibliografia.bib")
+
 #show: apendice
 
+#pagebreak()
 = Apéndice
 Si corresponde, utilice uno o más apéndices para complementar la información del trabajo.
-
-#pagebreak()
-
-#bibliography("bibliografia.bib")
