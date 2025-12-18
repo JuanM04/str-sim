@@ -183,6 +183,9 @@ to go
   update-tiempo
 
   if un-solo-dia and hora-actual = 0 and min-actual = 0 and seg-actual = 0 [
+    show (word "Trenes utilizados: " N-TRENES)
+    show (word "Pasajeros viajados: " n-pasajeros-totales)
+    show (word "Pasajeros impacientes: " n-pasajeros-impacientes)
     stop
   ]
 
