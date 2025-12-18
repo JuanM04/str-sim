@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <model version="NetLogo 7.0.3" snapToGrid="true">
-  <code><![CDATA[extensions [ array csv table ]
+  <code><![CDATA[extensions [ array csv string table ]
 
 globals [
   ; Constantes
@@ -538,6 +538,16 @@ end
 
 to-report n-pasajeros-viajando [ dest ]
   report count pasajeros with [estado = "VIAJANDO" and destino = dest] 
+end
+
+to exportar-datos-simulacion
+  let folder "simulaciones/"
+  export-plot "Pasajeros totales transportados"           (word folder "pasajeros_viajados.csv")
+  export-plot "Pasajeros saliendo por impaciencia"        (word folder "pasajeros_impacientes.csv")
+  export-plot "Pasajeros en tránsito hacia Retiro"        (word folder "viajando_hacia_retiro.csv")
+  export-plot "Pasajeros en tránsito hacia Constitución"  (word folder "viajando_hacia_constitución.csv")
+  export-plot "Ocupación estación Retiro"                 (word folder "ocupación_retiro.csv")
+  export-plot "Ocupación estación Constitución"           (word folder "ocupación_constitución.csv")
 end
 ]]></code>
   <widgets>
