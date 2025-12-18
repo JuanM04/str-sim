@@ -262,7 +262,7 @@ to update-tren-ascenso
     set v-actual 0
     set d-recorrida 0
     set d-total ESTACIONES-DISTANCIA
-    set max-pasajeros n-vagones * 80
+    set max-pasajeros n-vagones * 20
     set recorrido but-first table:get ESTACIONES-RECORRIDOS direccion
   ]
 end

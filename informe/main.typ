@@ -341,7 +341,7 @@ La simulación se ejecuta en un entorno gráfico con coordenadas entre $(40, 20)
 
 En el @cod-globals se observan las variables globales definidas en NetLogo. Con las constantes se parametriza el modelo. Estas son:
 - `SEG-A-TICKS`: cantidad de segundos reales que representa un _tick_ de la simulación, fijado en 10~ticks cada segundo.
-- `DIAS-HORA-INICIO` y `DIAS-HORA-FIN`: horarios de inicio y fin de operación del Subte, diferenciando entre días de semana y fines de semana.
+- `DIAS-HORA-INICIO` y `DIAS-HORA-FIN`: horarios de inicio y fin de operación del Subte, diferenciando entre días de semana y fines de semana @EmovaHorarios.
 - `TREN-V-MAX`: velocidad máxima de los trenes.
 - `TREN-ACC`: aceleración de los trenes.
 - `TREN-T-ESPERA`: tiempo que el tren permanece detenido en cada estación, fijado en un estimado de #zi.s[15]. Este tiempo se divide en dos partes iguales para el ascenso y descenso de pasajeros.
@@ -479,7 +479,7 @@ Para variar los párametros del modelo, se utilizan _sliders_ y _choosers_ en la
   caption: [Controles y monitores de la simulación.],
 ) <fig-controles>
 
-Con `n-vagones` se cambia la cantidad de vagones por formación --- cada vagón cuenta con una capacidad máxima de 40 pasajeros. Con `paciencia-media` se cambia la paciencia media de los pasajeros --- la desviación estándar se mantiene fija en #zi.minute[1.5]. Con `dia-incial` se puede elegir el día de la semana en que comienza la simulación. Finalmente, con `frecuencia-trenes` se puede elegir la frecuencia de los trenes en minutos, internamente se calcula la cantidad de trenes necesarios para mantener esa frecuencia, como se ve en el @cod-frecuencia-trenes.
+Con `n-vagones` se cambia la cantidad de vagones por formación --- cada vagón cuenta con una capacidad máxima de 20 pasajeros. Con `paciencia-media` se cambia la paciencia media de los pasajeros --- la desviación estándar se mantiene fija en #zi.minute[1.5]. Con `dia-incial` se puede elegir el día de la semana en que comienza la simulación. Finalmente, con `frecuencia-trenes` se puede elegir la frecuencia de los trenes en minutos, internamente se calcula la cantidad de trenes necesarios para mantener esa frecuencia, como se ve en el @cod-frecuencia-trenes.
 
 #figure(
   {
@@ -498,7 +498,12 @@ El código fuente de la simulación se encuentra disponible en el repositorio de
 - los datasets procesados en `datasets/` junto a el script que los generó
 - y las simulaciones realizadas en `simulaciones/`.
 
+#pagebreak()
 = Resultados
+
+Sobre la simulación desarrollada, se realizaron múltiples experimentos variando los parámetros del modelo. En particular, se variaron la cantidad de vagones por formación y la frecuencia de los trenes. Para estos experimentos, se fijó la paciencia media de los pasajeros en el doble de la frecuencia de los trenes, para simular que los pasajeros están dispuestos a esperar entre uno y dos trenes antes de desistir.
+
+Como base, se tomaron frecuencias de 3, 5 y 7 minutos para los días de semana, sábados y domingos, respectivamente @EmovaHorarios. Sobre estas frecuencias, se variaron la cantidad de vagones por formación entre 1 y 3 vagones (cada uno con capacidad para 20 pasajeros).
 
 = Conclusiones
 

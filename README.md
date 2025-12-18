@@ -23,3 +23,7 @@ cd datasets/
 uv install      # Instala las dependencias
 uv run main.py  # Procesa los datasets
 ```
+
+## Simulaciones
+
+Las simulaciones realizadas se encuentran en la carpeta [`simulaciones/`](simulaciones/). Cada subcarpeta se nombra según los parámetros utilizados en la simulación, como `lunes-3min-2vagones`, que indica una simulación para un lunes con trenes cada 3 minutos y formaciones de 2 vagones --- la paciencia media de los pasajeros siempre es el doble de la frecuencia de los trenes (en este caso, 6 minutos).
