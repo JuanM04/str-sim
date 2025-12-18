@@ -47,6 +47,7 @@ trenes-own [
   estado                      ; Estado del tren ("ASCENSO", "EN_TRÁNSITO" o "DESCENSO")
   ticks-estado                ; Cantidad de ticks desde que el tren entró al estado actual
   direccion                   ; Hacia dónde se dirige ("RETIRO" o "CONSTITUCIÓN")
+  n-pasajeros                 ; Cantidad de pasajeros en los vagones
   ; Si se encuentra "EN_TRÁNSITO"
   recorrido                   ; Cola de puntos para recorrer
   v-actual                    ; [m/s] Velocidad actual de la formación
@@ -272,7 +273,8 @@ end
 to update-tren-en-transito
   if empty? recorrido [
     set-estado "DESCENSO"
-    set n-pasajeros-totales n-pasajeros-totales + n-pasajeros-tren
+    set n-pasajeros-totales n-pasajeros-totales + n-pasajeros
+    set n-pasajeros 0
     ask in-viaje-neighbors [
       set color yellow
       set-estado "SALIENDO"
@@ -398,7 +400,7 @@ to update-pasajero-esperando
     ]
   ]
 
-  if tren-esperando != nobody and [n-pasajeros-tren < max-pasajeros] of tren-esperando [
+  if tren-esperando != nobody and [n-pasajeros < max-pasajeros] of tren-esperando [
     set color green
     set-estado "SUBIENDO"
     face tren-esperando
@@ -414,7 +416,8 @@ end
 
 to update-pasajero-subiendo
   ifelse [tipo] of patch-here = "ANDÉN" [
-    ifelse tren-esperando != nobody and [n-pasajeros-tren < max-pasajeros] of tren-esperando [
+    ifelse tren-esperando != nobody and [n-pasajeros < max-pasajeros] of tren-esperando [
+      ask tren-esperando [ set n-pasajeros n-pasajeros + 1]
       create-viaje-to tren-esperando
       set-estado "VIAJANDO"
       hide-turtle
@@ -428,7 +431,7 @@ to update-pasajero-subiendo
 end
 
 to update-pasajero-viajando
-  ; nada
+  stop
 end
 
 to update-pasajero-saliendo
@@ -467,11 +470,6 @@ to-report ticks-desde [ hh mm ]
       report accum * SEG-A-TICKS
     ]
   ]
-end
-
-; Retorna la cantidad de pasajeros del tren que lo llama
-to-report n-pasajeros-tren
-  report count my-in-viajes
 end
 
 ; Retorna el tiempo que le toma a un tren moverse entre dos estaciones.
